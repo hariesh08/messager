@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard — Messages App</title>
+    <meta name="description" content="Your personal messages dashboard." />
+    <link rel="stylesheet" href="./styles/main.css" />
+
+    <!-- ⚡ REPLACE these values with your Supabase project URL and anon key -->
+    <script>
+        window.APP_CONFIG = {
+            SUPABASE_URL: 'https://tsospnpfyhkzniykwtjg.supabase.co',
+            SUPABASE_ANON_KEY: 'sb_publishable_vqQhwYXaiKdHqybTlGd7WQ_-gOZnxR1',
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+
+<body class="dashboard-page">
+
+    <!-- Top Navigation Bar -->
+    <header class="topbar" role="banner">
+        <div class="topbar-brand">
+            <div class="topbar-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z" />
+                </svg>
+            </div>
+            <span>Messages</span>
+        </div>
+
+        <div class="topbar-right">
+            <span class="user-email" id="user-email" title="Logged in as"></span>
+            <button id="logout-btn" class="btn btn-danger" aria-label="Log out">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0">
+                    <path
+                        d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" />
+                </svg>
+                Log out
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="dashboard-body" role="main">
+
+        <!-- Compose new message -->
+        <section class="compose-card" aria-labelledby="compose-heading">
+            <h2 id="compose-heading">New Message</h2>
+
+            <div class="form-group" style="margin-bottom:0">
+                <label for="message-input">What's on your mind?</label>
+                <textarea id="message-input" placeholder="Type your message here… (Ctrl+Enter to save)" rows="4"
+                    maxlength="5000" aria-label="Message content"></textarea>
+            </div>
+
+            <div class="compose-actions">
+                <button id="save-btn" class="btn btn-primary" aria-label="Save message">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z" />
+                    </svg>
+                    <span class="btn-text">Save Message</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Messages list -->
+        <section aria-labelledby="messages-heading">
+            <div class="messages-header">
+                <h2 id="messages-heading">Your Messages</h2>
+                <span class="msg-count" id="msg-count">Loading…</span>
+            </div>
+
+            <div id="messages-list" role="list" aria-label="Saved messages">
+                <!-- Populated by dashboard.js -->
+                <div class="skeleton"></div>
+                <div class="skeleton"></div>
+                <div class="skeleton"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Dashboard logic (auth-guarded) -->
+    <script type="module" src="./js/dashboard.js"></script>
+
+</body>
+
+</html>

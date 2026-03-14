@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Up — Messages App</title>
+    <meta name="description" content="Create a free Messages App account." />
+    <link rel="stylesheet" href="./styles/main.css" />
+
+    <!-- ⚡ REPLACE these values with your Supabase project URL and anon key -->
+    <script>
+        window.APP_CONFIG = {
+            SUPABASE_URL: 'https://tsospnpfyhkzniykwtjg.supabase.co',
+            SUPABASE_ANON_KEY: 'sb_publishable_vqQhwYXaiKdHqybTlGd7WQ_-gOZnxR1',
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+
+<body class="auth-page">
+
+    <div class="container">
+        <div class="card">
+
+            <!-- Brand -->
+            <div class="brand">
+                <div class="brand-icon">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z" />
+                    </svg>
+                </div>
+                <h1>Create account</h1>
+                <p>Start saving your messages today</p>
+            </div>
+
+            <!-- Signup form -->
+            <form id="signup-form" novalidate>
+                <div class="form-group">
+                    <label for="email">Email address</label>
+                    <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email"
+                        required />
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Minimum 6 characters"
+                        autocomplete="new-password" required minlength="6" />
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm-password">Confirm password</label>
+                    <input type="password" id="confirm-password" name="confirm-password"
+                        placeholder="Repeat your password" autocomplete="new-password" required />
+                </div>
+
+                <button type="submit" id="signup-btn" class="btn btn-primary">
+                    <span class="btn-text">Create Account</span>
+                </button>
+
+                <div id="signup-alert" class="alert" role="alert"></div>
+            </form>
+
+            <!-- Footer link -->
+            <div class="auth-footer">
+                Already have an account? <a href="./login.html" id="goto-login">Sign in</a>
+            </div>
+
+        </div>
+    </div>
+
+    <script type="module">
+        import { signupUser, getSession } from './js/auth.js';
+
+        // Redirect if already logged in
+        const session = await getSession();
+        if (session) window.location.replace('./dashboard.html');
+
+        const form = document.getElementById('signup-form');
+        const btn = document.getElementById('signup-btn');
+        const alertEl = document.getElementById('signup-alert');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirm = document.getElementById('confirm-password').value;
+
+            // Client-side validation
+            if (!email || !password || !confirm) {
+                showAlert('Please fill in all fields.', 'error');
+                return;
+            }
+            if (password.length < 6) {
+                showAlert('Password must be at least 6 characters.', 'error');
+                return;
+            }
+            if (password !== confirm) {
+                showAlert('Passwords do not match.', 'error');
+                return;
+            }
+
+            setLoading(true);
+            const { data, error } = await signupUser(email, password);
+            setLoading(false);
+
+            if (error) {
+                showAlert(friendlyError(error.message), 'error');
+                return;
+            }
+
+            // If email confirmation is disabled (Supabase default for dev), redirect immediately
+            if (data?.session) {
+                window.location.replace('./dashboard.html');
+            } else {
+                // Email confirmation required
+                showAlert('Account created! Check your email to confirm your address, then log in.', 'success');
+                btn.disabled = true;
+            }
+        });
+
+        function setLoading(on) {
+            btn.disabled = on;
+            btn.classList.toggle('loading', on);
+            btn.querySelector('.btn-text').textContent = on ? 'Creating…' : 'Create Account';
+        }
+
+        function showAlert(msg, type = 'error') {
+            alertEl.textContent = msg;
+            alertEl.className = `alert alert-${type} visible`;
+        }
+
+        function friendlyError(msg) {
+            if (msg.includes('already registered')) return 'An account with this email already exists.';
+            if (msg.includes('weak')) return 'Password is too weak. Use at least 6 characters.';
+            return msg;
+        }
+    </script>
+
+</body>
+
+</html>

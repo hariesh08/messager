@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login — Messages App</title>
+    <meta name="description" content="Sign in to your secure Messages App account." />
+    <link rel="stylesheet" href="./styles/main.css" />
+
+    <!-- ⚡ REPLACE these values with your Supabase project URL and anon key -->
+    <script>
+        window.APP_CONFIG = {
+            SUPABASE_URL: 'https://tsospnpfyhkzniykwtjg.supabase.co',
+            SUPABASE_ANON_KEY: 'sb_publishable_vqQhwYXaiKdHqybTlGd7WQ_-gOZnxR1',
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+
+<body class="auth-page">
+
+    <div class="container">
+        <div class="card">
+
+            <!-- Brand -->
+            <div class="brand">
+                <div class="brand-icon">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z" />
+                    </svg>
+                </div>
+                <h1>Welcome back</h1>
+                <p>Sign in to view your messages</p>
+            </div>
+
+            <!-- Form -->
+            <form id="login-form" novalidate>
+                <div class="form-group">
+                    <label for="email">Email address</label>
+                    <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email"
+                        required />
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="••••••••"
+                        autocomplete="current-password" required />
+                </div>
+
+                <button type="submit" id="login-btn" class="btn btn-primary">
+                    <span class="btn-text">Sign In</span>
+                </button>
+
+                <div id="login-alert" class="alert alert-error" role="alert"></div>
+            </form>
+
+            <!-- Footer link -->
+            <div class="auth-footer">
+                Don't have an account? <a href="./signup.html" id="goto-signup">Create one</a>
+            </div>
+
+        </div>
+    </div>
+
+    <script type="module">
+        import { loginUser, getSession } from './js/auth.js';
+
+        // Redirect if already logged in
+        const session = await getSession();
+        if (session) window.location.replace('./dashboard.html');
+
+        const form = document.getElementById('login-form');
+        const btn = document.getElementById('login-btn');
+        const alert = document.getElementById('login-alert');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                showAlert('Please fill in all fields.');
+                return;
+            }
+
+            setLoading(true);
+            const { data, error } = await loginUser(email, password);
+            setLoading(false);
+
+            if (error) {
+                showAlert(friendlyError(error.message));
+                return;
+            }
+
+            window.location.replace('./dashboard.html');
+        });
+
+        function setLoading(on) {
+            btn.disabled = on;
+            btn.classList.toggle('loading', on);
+            btn.querySelector('.btn-text').textContent = on ? 'Signing in…' : 'Sign In';
+        }
+
+        function showAlert(msg) {
+            alert.textContent = msg;
+            alert.classList.add('visible');
+        }
+
+        function friendlyError(msg) {
+            if (msg.includes('Invalid login')) return 'Invalid email or password. Please try again.';
+            if (msg.includes('Email not confirmed')) return 'Please confirm your email before signing in.';
+            return msg;
+        }
+    </script>
+
+</body>
+
+</html>
